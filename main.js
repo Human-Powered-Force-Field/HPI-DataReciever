@@ -8,56 +8,57 @@ admin.initializeApp({
 var db = admin.firestore();
 var collection = "canons"
 
-
 const enocean = require('node-enocean-utils');
 
 // Teach the information of Enocean devices
 enocean.teach({
   'id'  : '00 00 00 2D 9F A1',
   'eep' : 'F6-02-02',
-  'name': 'Switch Device_9FA1'
+  'name': 'Controller 1'
 });
-
+enocean.teach({
+  'id'  : '00 00 00 2D 9F 39',
+  'eep' : 'F6-02-02',
+  'name': 'Controller 2'
+});
 // Start to monitor telegrams incoming from the Enocean devices
 enocean.startMonitor().then(() => {
   // Set an event listener for 'data-known' events
   enocean.on('data-known', (telegram) => {
     let message = telegram['message'];
-    console.log(message)
-    var canon = "leftCanon";
-    var isShooting = true
-    if (message['desc'] == "AI pressed"){
+    console.log(message['device']['name'] + ': ' + message['desc']);
+    let button = message['value'].button
+
+    var canon = "";
+
+    if (button == "AI"){
       canon = "leftCanon"
     }
-    else if(message['desc'] == "A0 pressed"){
+    else if(button == "A0"){
       canon = "topCanon"
     }
-    else if(message['desc'] == "B0 pressed"){
+    else if(button == "B0"){
       canon = "rightCanon"
     }
-    else if(message['desc'] == "BI pressed"){
+    else if(button == "BI"){
       canon = "bottomCanon"
     }
-    else{
-      isShooting = false
-    }
 
-    if (isShooting){
+    if (message['value'].pressed){
       db.collection(collection).doc(canon).update({
-          shooting: isShooting
+          shooting: true
         })
     }
     else{
       let canons = ["leftCanon", "topCanon", "rightCanon", "bottomCanon"]
       for (var i = 0; i < canons.length; i++) {
         db.collection(collection).doc(canons[i]).update({
-            shooting: isShooting
+            shooting: false
           })
       }
     }
 
 
-    console.log(message['device']['name'] + ': ' + message['desc']);
   });
 }).catch((error) => {
   console.error(error);
