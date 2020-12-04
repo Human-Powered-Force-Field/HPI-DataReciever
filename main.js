@@ -21,6 +21,32 @@ enocean.teach({
   'eep' : 'F6-02-02',
   'name': 'Controller 2'
 });
+enocean.teach({
+  'id'  : '00 00 01 A4 A2 C2',
+  'eep' : 'F6-02-02',
+  'name': 'Controller 3'
+});
+enocean.teach({
+  'id'  : '00 00 01 A4 A6 79',
+  'eep' : 'F6-02-02',
+  'name': 'Shaker'
+});
+
+setInterval(myTimer, 500);
+
+var shakes = []
+var prevNrOfShakes = 0
+function myTimer() {
+  if (shakes.length != prevNrOfShakes){
+    db.collection(collection).doc("shaker").update({
+        value: shakes.length
+      })
+    prevNrOfShakes = shakes.length
+    shakes = []
+
+  }
+}
+
 // Start to monitor telegrams incoming from the Enocean devices
 enocean.startMonitor().then(() => {
   // Set an event listener for 'data-known' events
@@ -29,34 +55,40 @@ enocean.startMonitor().then(() => {
     console.log(message['device']['name'] + ': ' + message['desc']);
     let button = message['value'].button
 
-    var canon = "";
-
-    if (button == "AI"){
-      canon = "leftCanon"
-    }
-    else if(button == "A0"){
-      canon = "topCanon"
-    }
-    else if(button == "B0"){
-      canon = "rightCanon"
-    }
-    else if(button == "BI"){
-      canon = "bottomCanon"
-    }
-
-    if (message['value'].pressed){
-      db.collection(collection).doc(canon).update({
-          shooting: true
-        })
+    if (message['device']['name'] == "Shaker"){
+      shakes.push(1)
     }
     else{
-      let canons = ["leftCanon", "topCanon", "rightCanon", "bottomCanon"]
-      for (var i = 0; i < canons.length; i++) {
-        db.collection(collection).doc(canons[i]).update({
-            shooting: false
+      var canon = "";
+
+      if (button == "AI"){
+        canon = "leftCanon"
+      }
+      else if(button == "A0"){
+        canon = "topCanon"
+      }
+      else if(button == "B0"){
+        canon = "rightCanon"
+      }
+      else if(button == "BI"){
+        canon = "bottomCanon"
+      }
+
+      if (message['value'].pressed){
+        db.collection(collection).doc(canon).update({
+            shooting: true
           })
       }
+      else{
+        let canons = ["leftCanon", "topCanon", "rightCanon", "bottomCanon"]
+        for (var i = 0; i < canons.length; i++) {
+          db.collection(collection).doc(canons[i]).update({
+              shooting: false
+            })
+        }
+      }
     }
+
 
 
   });
