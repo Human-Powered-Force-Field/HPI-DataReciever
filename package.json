@@ -1,1 +1,25 @@
-{}
+{
+  "name": "hpi-datareciever",
+  "description": "Set up: 1. Get api-key from firebase and add to project as dbkey.json 2. Run \"npm install\"",
+  "version": "1.0.0",
+  "main": "main.js",
+  "dependencies": {
+    "firebase-admin": "^9.4.1",
+    "node-enocean-utils": "^0.5.1",
+    "serialport": "^9.0.2",
+    "uniq": "^1.0.1"
+  },
+  "scripts": {
+    "test": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Human-Powered-Force-Field/HPI-DataReciever.git"
+  },
+  "author": "Johannes Loor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Human-Powered-Force-Field/HPI-DataReciever/issues"
+  },
+  "homepage": "https://github.com/Human-Powered-Force-Field/HPI-DataReciever#readme"
+}
