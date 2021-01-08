@@ -47,6 +47,29 @@ function myTimer() {
   }
 }
 
+function handlePullThingData(message, button){
+  if (message['value'].pressed){
+    if (button == "A0"){
+      db.collection(collection).doc("pause").update({
+          value: true
+      })
+    }
+    else if(button == "B0"){
+      db.collection(collection).doc("newField").update({
+          generate: true
+      })
+    }
+  }
+  else{
+    db.collection(collection).doc("pause").update({
+        value: false
+    })
+    db.collection(collection).doc("newField").update({
+        generate: false
+    })
+  }
+}
+
 // Start to monitor telegrams incoming from the Enocean devices
 enocean.startMonitor().then(() => {
   // Set an event listener for 'data-known' events
@@ -57,6 +80,9 @@ enocean.startMonitor().then(() => {
 
     if (message['device']['name'] == "Shaker"){
       shakes.push(1)
+    }
+    else if (message['device']['name'] == "Controller 2"){
+      handlePullThingData(message, button)
     }
     else{
       var canon = "";
